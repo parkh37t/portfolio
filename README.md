@@ -29,14 +29,22 @@ Digital Business & Delivery Leader. Personal portfolio site.
 `{{ ... }}` 바인딩, `<image-slot>`, `sc-camel-on-click` 같은 속성은
 `assets/`에 있는 런타임 스크립트가 처리한다. 마크업만 고칠 때는 신경 쓸 필요 없다.
 
-### 로컬에서 확인하기
+### 확인하기
 
-`file://`로 열면 스크립트가 동작하지 않으므로 정적 서버로 띄운다:
+푸시 전에 `npm run check`를 돌린다. GitHub Pages와 같은 `/portfolio/` 경로로
+사이트를 띄워 세 페이지를 실제 브라우저에서 열고, 깨진 참조 · 스크립트 에러 ·
+로드 실패한 이미지 · 누락된 웹폰트 · 빠진 head 태그 · 죽은 링크 · 모바일 가로
+넘침 · 페이지 용량 초과를 잡아낸다. 스크린샷은 `.check/`에 남으므로 디자인
+변경은 그걸 열어 눈으로 확인하면 된다.
 
 ```sh
-python3 -m http.server 8000
-# http://localhost:8000/
+npm install       # 최초 1회 (검증용 playwright)
+npm run check     # 푸시 전 검증
+npm run serve     # http://localhost:8000 에서 직접 보기
 ```
+
+`file://`로 열면 런타임 스크립트가 동작하지 않으니 반드시 서버로 띄운다.
+사이트 자체에는 빌드도 의존성도 없다 — `package.json`은 검증 도구 전용이다.
 
 ### 이미지를 바꿀 때
 
