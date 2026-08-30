@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GITHUB_TOKEN needs id-token to mint the deployment's OIDC credential and
+# pages to publish; contents stays read-only since nothing is committed back.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it, so a half-published
+# site never becomes the live one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # enablement turns Pages on for the repository if it is not configured
+      # yet, so the first run of this workflow is all the setup there is.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # The site is already static in the repository root — the build that
+      # produces it (npm run build) runs locally against the Claude Design
+      # export, which is not committed. See README.md.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
