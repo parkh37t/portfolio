@@ -1,0 +1,10 @@
+node_modules/
+
+# Build input: the raw Claude Design export. Each file carries every font and
+# image again as base64, so committing them would put ~21MB of duplicated
+# payload back into the repo that the build exists to remove. Drop a fresh
+# export here when you rebuild; the first import is recoverable from history
+# with `git show 79bd489:index.html`.
+src/bundled/
+
+.DS_Store
