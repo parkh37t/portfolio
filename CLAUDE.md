@@ -69,6 +69,14 @@ of them, but knowing why saves a cycle:
 
 ## Shipping
 
+**Commit to `main`.** Pages serves it, so a commit anywhere else never reaches
+the site. The cloud container checks out a per-session scratch branch
+(`claude/…`) at startup; the SessionStart hook moves off it onto `main` when
+the tree is clean and the branch holds nothing `main` lacks, and says so. If it
+reports that it stayed put, deal with what it found — do not just commit there.
+If you ever do land a commit on a scratch branch, fast-forward `main` onto it
+and push `main`, rather than pushing the scratch branch.
+
 Push to `main`; Pages redeploys in a minute or two.
 
 **`parkh37t.github.io` is blocked by this sandbox's egress proxy**, so the live
