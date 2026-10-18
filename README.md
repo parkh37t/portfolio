@@ -9,7 +9,7 @@ Digital Business & Delivery Leader. Personal portfolio site.
 | Path | What it is |
 | --- | --- |
 | `index.html` | 메인 포트폴리오 (PC / Tablet / Mobile 반응형) |
-| `archive.html` | 프로젝트 아카이브 39건 (2000–2027) |
+| `archive.html` | 프로젝트 아카이브 40건 (2000–2027) |
 | `resume.html` | A4 인쇄용 이력서 (브라우저에서 인쇄 → PDF 저장, 2페이지) |
 | `assets/` | 폰트 · 이미지 · 스크립트. 파일명은 내용 해시라 셋 다 같은 파일을 공유한다 |
 | `.nojekyll` | Pages가 Jekyll을 거치지 않고 트리를 그대로 서빙하게 한다 |
@@ -29,12 +29,22 @@ Digital Business & Delivery Leader. Personal portfolio site.
 `{{ ... }}` 바인딩, `<image-slot>`, `sc-camel-on-click` 같은 속성은
 `assets/`에 있는 런타임 스크립트가 처리한다. 마크업만 고칠 때는 신경 쓸 필요 없다.
 
+### 다크 · 라이트 모드
+
+`index.html`과 `archive.html`에는 다크/라이트 토글이 있다. 처음엔 방문자의 OS
+설정을 따르고, 한 번 고르면 그 선택을 기억한다. 색은 `#0A0A0A` 같은 값을 직접
+쓰지 않고 `rgb(var(--ink))`, `rgba(var(--paper),.5)` 같은 토큰으로 쓴다 —
+직접 쓰면 한쪽 테마에서 글자가 배경에 묻힌다. 섹션마다 `data-tone`이 붙어
+있어야 하고, 규칙과 이유는 `CLAUDE.md`의 Themes 절에 있다. `npm run check`가
+두 테마를 모두 열어 어긋난 곳을 잡아낸다.
+
 ### 확인하기
 
 푸시 전에 `npm run check`를 돌린다. GitHub Pages와 같은 `/portfolio/` 경로로
-사이트를 띄워 세 페이지를 실제 브라우저에서 열고, 깨진 참조 · 스크립트 에러 ·
-로드 실패한 이미지 · 누락된 웹폰트 · 빠진 head 태그 · 죽은 링크 · 모바일 가로
-넘침 · 페이지 용량 초과를 잡아낸다. 스크린샷은 `.check/`에 남으므로 디자인
+사이트를 띄워 세 페이지를 실제 브라우저에서(테마가 있는 페이지는 다크·라이트
+둘 다) 열고, 깨진 참조 · 스크립트 에러 · 로드 실패한 이미지 · 누락된 웹폰트 ·
+빠진 head 태그 · 죽은 링크 · 테마 깨짐 · 모바일 가로 넘침 · 페이지 용량 초과를
+잡아낸다. 스크린샷은 `.check/`에 남으므로 디자인
 변경은 그걸 열어 눈으로 확인하면 된다.
 
 ```sh

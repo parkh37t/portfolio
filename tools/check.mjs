@@ -28,6 +28,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PAGES = ['index.html', 'archive.html', 'resume.html'];
+// Pages with the dark/light toggle. Each is loaded in both themes.
+const THEMED = ['index.html', 'archive.html'];
+const THEMES = ['dark', 'light'];
 const MOUNT = '/portfolio/';
 const PORT = 8123;
 const SHOTS = path.join(ROOT, '.check');
@@ -116,6 +119,18 @@ function staticPass() {
   if (!fs.existsSync(path.join(ROOT, '.nojekyll'))) {
     fail('.nojekyll', 'missing — Pages would run the tree through Jekyll and drop files');
   }
+
+  // The themed pages draw in two inks through tokens, so a theme can swap them
+  // per section. A literal ink or paper value cannot be swapped: it renders
+  // right in one theme and as dark-on-dark or light-on-light in the other.
+  // (The resume is print-only and keeps literals on purpose.)
+  for (const page of THEMED) {
+    const text = fs.readFileSync(path.join(ROOT, page), 'utf8');
+    const literals = text.match(/#0A0A0A\b|#F4F2ED\b|#55524B\b|rgba\(10,10,10,|rgba\(244,242,237,/gi) || [];
+    if (literals.length) {
+      fail(page, `${literals.length} literal ink/paper colour(s) (${[...new Set(literals)].join(', ')}) — use rgb(var(--ink)), rgb(var(--paper)), rgba(var(--ink),a), rgba(var(--paper),a), rgb(var(--ink2))`);
+    }
+  }
 }
 
 // ── runtime pass ──────────────────────────────────────────────────────────
@@ -133,8 +148,12 @@ function serve() {
 }
 
 async function runtimePass(browser, server) {
-  for (const page of PAGES) {
+  const runs = PAGES.flatMap((page) => (THEMED.includes(page) ? THEMES : [null]).map((theme) => ({ page, theme })));
+  for (const { page, theme } of runs) {
+    const label = theme ? `${page} [${theme}]` : page;
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    // The page's head script reads the stored choice before first paint.
+    if (theme) await ctx.addInitScript((t) => { try { localStorage.setItem('theme', t); } catch {} }, theme);
     const tab = await ctx.newPage();
     const errors = [], missing = [];
     let bytes = 0;
@@ -165,38 +184,54 @@ async function runtimePass(browser, server) {
       bodyFont: getComputedStyle(document.body).fontFamily,
       bundlerLeftovers: document.querySelectorAll('script[type^="__bundler"]').length,
       links: [...document.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')),
+      theme: document.documentElement.getAttribute('data-theme'),
+      // Relative luminance of every section ground (or the page, if it has none).
+      grounds: [...document.querySelectorAll('section[data-sec]')].concat(document.querySelector('section[data-sec]') ? [] : [document.body])
+        .map((el) => {
+          const [r, g, b] = getComputedStyle(el).backgroundColor.match(/[\d.]+/g).map(Number);
+          const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+          return { id: el.id || el.tagName.toLowerCase(), L: 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) };
+        }),
     }));
 
     fs.mkdirSync(SHOTS, { recursive: true });
-    await tab.screenshot({ path: path.join(SHOTS, page.replace('.html', '.png')) });
+    await tab.screenshot({ path: path.join(SHOTS, page.replace('.html', theme ? `-${theme}.png` : '.png')) });
 
     const unexpected = missing.filter((u) => !EXPECTED_MISSING.some((e) => u.endsWith(e)));
-    if (unexpected.length) fail(page, `${unexpected.length} request(s) failed: ${unexpected.map((u) => u.replace(`http://localhost:${PORT}`, '')).join(', ')}`);
-    if (errors.length) fail(page, `script error: ${errors[0]}`);
-    if (!seen.title) fail(page, 'no <title>');
-    if (!seen.description) fail(page, 'no meta description');
-    if (!seen.ogUrl.startsWith('https://')) fail(page, `og:url must be absolute, got "${seen.ogUrl}"`);
-    if (seen.bundlerLeftovers) fail(page, `${seen.bundlerLeftovers} leftover __bundler script tag(s)`);
+    if (unexpected.length) fail(label, `${unexpected.length} request(s) failed: ${unexpected.map((u) => u.replace(`http://localhost:${PORT}`, '')).join(', ')}`);
+    if (errors.length) fail(label, `script error: ${errors[0]}`);
+    if (!seen.title) fail(label, 'no <title>');
+    if (!seen.description) fail(label, 'no meta description');
+    if (!seen.ogUrl.startsWith('https://')) fail(label, `og:url must be absolute, got "${seen.ogUrl}"`);
+    if (seen.bundlerLeftovers) fail(label, `${seen.bundlerLeftovers} leftover __bundler script tag(s)`);
+
+    // A theme means every section sits on that theme's ground. A section that
+    // stays put was missed by the tokens — no data-tone, or a literal colour.
+    if (theme) {
+      if (seen.theme !== theme) fail(label, `data-theme is "${seen.theme}", expected "${theme}"`);
+      const wrong = seen.grounds.filter((g) => (theme === 'dark' ? g.L > 0.1 : g.L < 0.6));
+      if (wrong.length) fail(label, `section ground not ${theme}: ${wrong.map((g) => `#${g.id} (L=${g.L.toFixed(2)})`).join(', ')}`);
+    }
 
     const broken = seen.images.filter((i) => !i.ok);
-    if (broken.length) fail(page, `${broken.length} image(s) failed to decode: ${broken.map((i) => i.src).join(', ')}`);
+    if (broken.length) fail(label, `${broken.length} image(s) failed to decode: ${broken.map((i) => i.src).join(', ')}`);
 
     // Zero loaded faces means the webfonts silently dropped — usually a url()
     // resolved against the wrong directory — and the page falls back to system
     // type while still looking superficially fine.
-    if (seen.fontsLoaded === 0) fail(page, 'no webfonts loaded — check url() paths in assets/*.css');
-    if (!/Pretendard/.test(seen.bodyFont)) fail(page, `body is not using Pretendard (got ${seen.bodyFont})`);
+    if (seen.fontsLoaded === 0) fail(label, 'no webfonts loaded — check url() paths in assets/*.css');
+    if (!/Pretendard/.test(seen.bodyFont)) fail(label, `body is not using Pretendard (got ${seen.bodyFont})`);
 
     for (const href of new Set(seen.links)) {
       if (/^(https?:|mailto:|tel:|#)/.test(href) || !href) continue;
-      if (!fs.existsSync(path.join(ROOT, href.split(/[?#]/)[0]))) fail(page, `link to missing page "${href}"`);
+      if (!fs.existsSync(path.join(ROOT, href.split(/[?#]/)[0]))) fail(label, `link to missing page "${href}"`);
     }
 
     if (bytes > MAX_PAGE_BYTES) {
-      fail(page, `${(bytes / 1024 / 1024).toFixed(1)}MB on first load, over the ${(MAX_PAGE_BYTES / 1024 / 1024).toFixed(1)}MB budget`);
+      fail(label, `${(bytes / 1024 / 1024).toFixed(1)}MB on first load, over the ${(MAX_PAGE_BYTES / 1024 / 1024).toFixed(1)}MB budget`);
     }
 
-    notes.push(`${page}: ${(bytes / 1024).toFixed(0)}KB, ${seen.fontsLoaded} fonts, ${seen.images.length} images, "${seen.title}"`);
+    notes.push(`${label}: ${(bytes / 1024).toFixed(0)}KB, ${seen.fontsLoaded} fonts, ${seen.images.length} images${theme ? `, ${seen.grounds.length} grounds ${theme}` : ''}`);
     await ctx.close();
   }
 

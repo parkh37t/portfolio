@@ -10,7 +10,7 @@ them, verify, push to `main`, done.
 
 ```
 index.html      메인 포트폴리오 (반응형)
-archive.html    프로젝트 아카이브 39건 (2000–2027)
+archive.html    프로젝트 아카이브 40건 (2000–2027)
 resume.html     A4 인쇄용 이력서 (2페이지)
 assets/         fonts, images, scripts — filenames are content hashes
 assets/pretendard.css   shared Korean webfont @font-face block
@@ -24,14 +24,65 @@ the markup. `archive.html` repeats one block shape per project.
 
 `{{ ... }}` bindings, `<image-slot>`, and `sc-camel-on-click` attributes are
 handled at runtime by scripts in `assets/`. Leave them alone when editing
-markup; they work.
+markup; they work. The runtime keeps `class`, `data-*`, `aria-*`, inline
+`<svg>` (markers, `text-anchor`) and `var()` in inline styles intact, so all of
+those are safe to use in new markup.
+
+## Themes (dark / light)
+
+index.html and archive.html have a dark/light toggle. The design is two inks —
+ink `10,10,10` and paper `244,242,237` — whose roles flip by section: on a
+dark section ink is the ground, on a light one it is the type. So colours are
+written as tokens of the **ink**, never the role:
+
+| write | instead of |
+| --- | --- |
+| `rgb(var(--ink))` / `rgba(var(--ink),.16)` | `#0A0A0A` / `rgba(10,10,10,.16)` |
+| `rgb(var(--paper))` / `rgba(var(--paper),.5)` | `#F4F2ED` / `rgba(244,242,237,.5)` |
+| `rgb(var(--ink2))` | `#55524B` (secondary text on light sections) |
+
+Every `<section data-sec>` carries `data-tone="dark"` or `data-tone="light"`
+(archive puts `data-tone="light"` on `<html>`). A theme swaps the two inks only
+inside sections of the *other* tone — see the `theme tokens` block in each
+page's `<style>`. With no `data-theme` the page renders exactly as originally
+designed (alternating black and paper); the head script always sets one,
+following the OS until the visitor picks, then remembering the pick in
+`localStorage.theme`. The fixed nav sits outside every section, so its colours
+come from `--tL-*`/`--tD-*` via the runtime's `navFg`/`navBg`/`tickFg`.
+
+`#8A877F` (muted), `#1B44FE` (accent, lifted to `#4D73FF` in dark), and the
+white logo pills stay literal — they read on both grounds. resume.html is a
+print document and is not themed.
+
+`npm run check` fails on a literal ink/paper value in a themed page and loads
+each themed page in both themes, failing if any section ground stays the
+wrong tone — the two ways a new section breaks the toggle.
+
+## Visuals and how to maintain them
+
+- **WORK timeline** (`figure.wt`) — bars are positioned by month on a 33-month
+  axis, 2025.01–2027.09: `left = months since 2025.01 / 33`,
+  `width = months inclusive / 33`. The `×4` band marks the peak-overlap window,
+  also computed from the dates. Adding a project means recomputing those, the
+  peak, and the axis if it extends past 2027.09; keep it in step with the list
+  below it, which is the text version of the same data.
+- **AX pipeline** (`figure.axd`, AI section) — inline SVG, shown ≥1024px; below
+  that the `.ax-narrow` cards carry the same content. Source: the WYLIE AX deck,
+  slides 32–34.
+- **CAREER nested scope** (`figure.xp`) — each role nests the one before it;
+  pure HTML/CSS, so text stays real size on phones.
+- **SYSTEM flow** (`div.of`) — the seven stages split at WIN (수주 · 계약) into
+  before and after the contract; stacks vertically under 900px.
+
+All four use the ink tokens and `--accent`, so they follow the theme.
 
 ## Working on it
 
 **Always run `npm run check` before pushing.** It serves the site under
-`/portfolio/` the way Pages does, loads every page in Chromium, and fails on
-broken references, script errors, undecoded images, dropped webfonts, missing
-head tags, dead links, mobile overflow, and page-weight blowups. It writes
+`/portfolio/` the way Pages does, loads every page in Chromium (themed pages in
+both themes), and fails on broken references, script errors, undecoded images,
+dropped webfonts, missing head tags, dead links, theme breakage, mobile
+overflow, and page-weight blowups. It writes
 screenshots to `.check/` — read those to judge how a design change actually
 looks, since the harness only decides whether the page is broken.
 
