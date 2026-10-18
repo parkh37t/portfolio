@@ -69,6 +69,10 @@ function localRefs(text, base) {
     out.push({ url, abs: path.join(base, url), rooted: url.startsWith('/') });
   };
   for (const m of text.matchAll(/(?:src|href)\s*=\s*"([^"]*)"/g)) add(m[1]);
+  // srcset lists candidates as "url width, url width"; only the URLs count.
+  for (const m of text.matchAll(/srcset\s*=\s*"([^"]*)"/g)) {
+    for (const cand of m[1].split(',')) add(cand.trim().split(/\s+/)[0]);
+  }
   for (const m of text.matchAll(/url\(\s*(['"]?[^)'"]+['"]?)\s*\)/g)) add(m[1]);
   // The runtime resolves its CDN imports (React, ReactDOM) through this map
   // instead of the network, so these assets are referenced by value only —
@@ -174,6 +178,19 @@ async function runtimePass(browser, server) {
     await tab.goto(`http://localhost:${PORT}${MOUNT}${page === 'index.html' ? '' : page}`,
       { waitUntil: 'networkidle', timeout: 60_000 });
     await tab.waitForTimeout(2500);
+    // The budget is for what a visitor pays before scrolling.
+    const firstLoad = bytes;
+    // Lazy images only load near the viewport. Walk the page so every one is
+    // requested, then judge them all — an image that never arrives should fail.
+    await tab.evaluate(async () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+      for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight * 0.8) {
+        scrollTo(0, y); await new Promise((r) => setTimeout(r, 120));
+      }
+      await Promise.all([...document.images].map((i) => (i.complete ? null : new Promise((r) => { i.onload = i.onerror = r; }))));
+      scrollTo(0, 0);
+    });
+    await tab.waitForLoadState('networkidle');
 
     const seen = await tab.evaluate(() => ({
       title: document.title,
@@ -227,11 +244,11 @@ async function runtimePass(browser, server) {
       if (!fs.existsSync(path.join(ROOT, href.split(/[?#]/)[0]))) fail(label, `link to missing page "${href}"`);
     }
 
-    if (bytes > MAX_PAGE_BYTES) {
-      fail(label, `${(bytes / 1024 / 1024).toFixed(1)}MB on first load, over the ${(MAX_PAGE_BYTES / 1024 / 1024).toFixed(1)}MB budget`);
+    if (firstLoad > MAX_PAGE_BYTES) {
+      fail(label, `${(firstLoad / 1024 / 1024).toFixed(1)}MB on first load, over the ${(MAX_PAGE_BYTES / 1024 / 1024).toFixed(1)}MB budget`);
     }
 
-    notes.push(`${label}: ${(bytes / 1024).toFixed(0)}KB, ${seen.fontsLoaded} fonts, ${seen.images.length} images${theme ? `, ${seen.grounds.length} grounds ${theme}` : ''}`);
+    notes.push(`${label}: ${(firstLoad / 1024).toFixed(0)}KB first load, ${seen.fontsLoaded} fonts, ${seen.images.length} images${theme ? `, ${seen.grounds.length} grounds ${theme}` : ''}`);
     await ctx.close();
   }
 
