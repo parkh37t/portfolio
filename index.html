@@ -620,6 +620,60 @@ a:hover{color:var(--accent,#1B44FE);text-decoration:underline}
         <p style="margin:12px 0 0;font-size:14.5px;line-height:1.7;color:rgba(244,242,237,.62)">본부 손익 관리 웹 대시보드를 직접 설계·개발·운영 — 계획 대비 실적과 리스크를 상시 추적.</p>
       </div>
     </div>
+    <div data-reveal="" style="margin-top:72px;border-top:1px solid rgba(244,242,237,.18);padding-top:40px">
+      <div style="font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.16em;color:var(--accent,#1B44FE)">05 — AX AGENT PIPELINE</div>
+      <h3 style="margin:16px 0 0;font-size:clamp(22px,2.6vw,30px);font-weight:800;font-stretch:112%;letter-spacing:-.01em">요건에서 화면까지, 세 에이전트를 하나의 규격으로</h3>
+      <p style="margin:14px 0 0;font-size:15px;line-height:1.75;color:rgba(244,242,237,.62);max-width:720px">기획 · 디자인 · 퍼블리싱 에이전트가 정해진 산출물 형식으로 연결되고, 요구사항부터 구현된 화면 요소까지 ID 하나로 추적됩니다. 도구는 6개월마다 바뀌지만 산출물 형식은 그대로 씁니다. 와일리 컨버전스 2·3본부 AX 방법론으로 정립 (2026.09).</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:34px">
+        <div style="border:1px solid rgba(244,242,237,.18);padding:22px 24px;box-sizing:border-box">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">PLANNING</div>
+          <div style="margin-top:10px;font-size:16px;font-weight:700">기획 에이전트</div>
+          <div style="margin-top:4px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--accent,#1B44FE)">Claude Code · 커스텀 스킬</div>
+          <p style="margin:12px 0 0;font-size:13.5px;line-height:1.65;color:rgba(244,242,237,.58)">IA · 기능정의 수립과 ID 발번, HTML 화면설계서 생성, 요구사항 커버리지 검증</p>
+        </div>
+        <div style="border:1px solid rgba(244,242,237,.18);padding:22px 24px;box-sizing:border-box">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">DESIGN</div>
+          <div style="margin-top:10px;font-size:16px;font-weight:700">디자인 에이전트</div>
+          <div style="margin-top:4px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--accent,#1B44FE)">Figma MCP · UX Pilot</div>
+          <p style="margin:12px 0 0;font-size:13.5px;line-height:1.65;color:rgba(244,242,237,.58)">설계서를 디자인 레이어로 변환, 컴포넌트 · 토큰 매핑, 설계 준수 여부 검사</p>
+        </div>
+        <div style="border:1px solid rgba(244,242,237,.18);padding:22px 24px;box-sizing:border-box">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">PUBLISHING</div>
+          <div style="margin-top:10px;font-size:16px;font-weight:700">퍼블리싱 에이전트</div>
+          <div style="margin-top:4px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--accent,#1B44FE)">Cursor · Storybook</div>
+          <p style="margin:12px 0 0;font-size:13.5px;line-height:1.65;color:rgba(244,242,237,.58)">컴포넌트 · 화면 코드 생성, 상태 · 반응형 · 접근성 검증, 인계 패키지 구성</p>
+        </div>
+      </div>
+      <div style="margin-top:34px;border:1px solid rgba(244,242,237,.18);padding:24px 26px">
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">TRACEABILITY — 요구사항부터 구현물까지 하나의 ID</div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px;font-family:'Geist Mono',monospace;font-size:12.5px;letter-spacing:.06em">
+          <span style="color:#F4F2ED">REQ</span><span style="color:rgba(244,242,237,.35)">→</span>
+          <span style="color:#F4F2ED">IA</span><span style="color:rgba(244,242,237,.35)">→</span>
+          <span style="color:#F4F2ED">FN</span><span style="color:rgba(244,242,237,.35)">→</span>
+          <span style="color:#F4F2ED">SCR</span><span style="color:rgba(244,242,237,.35)">→</span>
+          <span style="color:#F4F2ED">DS</span><span style="color:rgba(244,242,237,.35)">→</span>
+          <span style="color:var(--accent,#1B44FE)">PUB</span>
+        </div>
+        <p style="margin:14px 0 0;font-size:13.5px;line-height:1.7;color:rgba(244,242,237,.58);max-width:760px">요구사항 · IA 노드 · 기능 · 화면설계서 · 디자인 · 구현물이 한 줄로 이어집니다. 화면 하나를 고르면 어느 요구에서 왔는지, 어디까지 구현됐는지 따라갈 수 있고, 커버리지가 100%가 아니면 다음 단계로 넘기지 않습니다.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:14px">
+        <div style="border:1px solid rgba(244,242,237,.18);padding:22px 24px;box-sizing:border-box">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">PROPOSAL SPRINT</div>
+          <div style="margin-top:12px;font-size:28px;font-weight:800;font-stretch:112%">4일</div>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.65;color:rgba(244,242,237,.58)">수주 전에 화면을 먼저 만들어 제출합니다. 설계목업 6~8본 · 디자인 시안 2안 · 동작 프로토타입 · 시연 QR</p>
+        </div>
+        <div style="border:1px solid rgba(244,242,237,.18);padding:22px 24px;box-sizing:border-box">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">HANDOFF SPEC</div>
+          <div style="margin-top:12px;font-size:28px;font-weight:800;font-stretch:112%">6종</div>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.65;color:rgba(244,242,237,.58)">단계 사이에 넘기는 파일 형식을 고정 — screen-spec · tokens · component-map · content · flow · brand-kit</p>
+        </div>
+        <div style="border:1px solid rgba(244,242,237,.18);padding:22px 24px;box-sizing:border-box">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(244,242,237,.45)">HUMAN IN THE LOOP</div>
+          <div style="margin-top:12px;font-size:28px;font-weight:800;font-stretch:112%">7단계</div>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.65;color:rgba(244,242,237,.58)">에이전트는 초안 · 변환 · 검증을, 사람은 채택 · 우선순위 · 사실 확인 · 승인을 맡습니다</p>
+        </div>
+      </div>
+    </div>
     <div data-reveal="" style="margin-top:76px">
       <div style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:clamp(26px,4vw,48px);line-height:1.2">THIS SITE IS EXHIBIT A.</div>
       <p style="margin:12px 0 0;font-size:14px;color:rgba(244,242,237,.55)">이 웹사이트 자체가 Claude로 기획 → 디자인 → 빌드된 증거물입니다.</p>
