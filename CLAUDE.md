@@ -84,7 +84,7 @@ All four use the ink tokens and `--accent`, so they follow the theme.
   SYSTEM, AI and CAREER, always in the same slot (heading → plate → content).
   Files are `assets/plate-<section>-2000.webp` and `-1000.webp`, served through
   `srcset`, lazy-loaded, `alt=""` because they are mood rather than content.
-  They are one series from Higgsfield (gpt_image_2_5, high, 2k): monochrome
+  They are one series from Higgsfield (gpt_image_2_6, quality max, 4k, 21:9; re-encoded to WebP): monochrome
   architecture with a single cobalt-blue line, no text, logos or people — keep
   any replacement in that direction or the set stops reading as one. Phones
   crop them to 2:1. Higgsfield serves results from
