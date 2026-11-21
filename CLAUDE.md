@@ -66,6 +66,10 @@ wrong tone — the two ways a new section breaks the toggle.
   also computed from the dates. Adding a project means recomputing those, the
   peak, and the axis if it extends past 2027.09; keep it in step with the list
   below it, which is the text version of the same data.
+  Below the timeline the same projects appear as three featured case cards
+  (`.fc`, chosen for scale and recency) and a compact table (`.wk-r`) for the
+  rest; timeline row numbers follow that order. Card copy uses only facts that
+  are already on the site or in archive.html — no invented metrics.
 - **AX pipeline** (`figure.axd`, AI section) — inline SVG, shown ≥1024px; below
   that the `.ax-narrow` cards carry the same content. Source: the WYLIE AX deck,
   slides 32–34.
