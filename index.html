@@ -478,8 +478,12 @@ html[data-theme=dark] body{--accent:#4D73FF}
 .nv-cta:hover{transform:translateY(-1px);filter:brightness(1.12)}
 /* hero */
 .hero-ph{flex:0 0 auto;width:clamp(240px,21vw,330px);margin:0}
-.hero-ph .hero-img{aspect-ratio:3/2;overflow:hidden;box-shadow:0 0 0 1px rgba(var(--paper),.14)}
-.hero-ph img{width:100%;height:100%;object-fit:cover;object-position:46% 42%;filter:grayscale(1) contrast(1.06);display:block}
+.hero-ph .hero-img{aspect-ratio:3/2;overflow:hidden}
+/* no frame: the edges fade out so the photo sits in the ground; on a light
+   ground multiply also drops the photo's white backdrop into the page tone */
+.hero-ph img{width:100%;height:100%;object-fit:cover;object-position:46% 42%;filter:grayscale(1) contrast(1.06);display:block;-webkit-mask-image:radial-gradient(closest-side at 52% 50%,#000 58%,transparent 100%);mask-image:radial-gradient(closest-side at 52% 50%,#000 58%,transparent 100%)}
+html[data-theme=light] .hero-ph img{mix-blend-mode:multiply}
+html[data-theme=dark] .hero-ph img{filter:grayscale(1) contrast(1.06) brightness(.78);-webkit-mask-image:radial-gradient(closest-side at 50% 50%,#000 22%,transparent 100%);mask-image:radial-gradient(closest-side at 50% 50%,#000 22%,transparent 100%)}
 .hero-ph figcaption{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.16em;color:rgba(var(--paper),.5)}
 .hero-ph-m{position:static;width:100%;margin-top:30px}
 .hero-ph-m{width:100%}
